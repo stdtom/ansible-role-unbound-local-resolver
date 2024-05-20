@@ -1,0 +1,65 @@
+---
+# tasks file for unbound
+
+- name: Import assert.yml
+  ansible.builtin.import_tasks:
+    file: assert.yml
+  run_once: true
+  delegate_to: localhost
+
+- name: Get netstat output
+  ansible.builtin.command: "{{ unbound_list_port_command }}"
+  register: result
+  changed_when: false
+  when: unbound_verify_debug
+
+- name: Show netstat output
+  ansible.builtin.debug:
+    msg: '{{ result.stdout_lines }}'
+  when: unbound_verify_debug
+
+- name: Installing Unbound Packages
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ unbound_packages }}"
+
+- name: Ensure unbound is running
+  ansible.builtin.service:
+    name: "{{ unbound_service_name }}"
+    state: started
+    enabled: true
+
+- name: Check if port 53 is open
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: 53
+
+- name: Include OS specific tasks if defined
+  ansible.builtin.include_tasks:
+    file: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_distribution_release }}.yml"
+        - "{{ ansible_distribution }}.yml"
+        - "{{ ansible_os_family }}.yml"
+        - "default.yml"
+      skip: true
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Import verify.yml
+  ansible.builtin.import_tasks:
+    file: verify.yml
+
+- name: Get netstat output
+  ansible.builtin.command: "{{ unbound_list_port_command }}"
+  register: result
+  changed_when: false
+  when: unbound_verify_debug
+
+- name: Show netstat output
+  ansible.builtin.debug:
+    msg: '{{ result.stdout_lines }}'
+  when: unbound_verify_debug

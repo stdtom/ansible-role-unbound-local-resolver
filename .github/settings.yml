@@ -1,0 +1,7 @@
+---
+#
+# Ansible managed
+#
+repository:
+  description: Install and configure unbound as local dns resolver on your system.
+  topics: installer, dns, package, unbound, networking, system, ansible, molecule, tox, playbook

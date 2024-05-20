@@ -1,0 +1,53 @@
+---
+- name: verify | Install dig
+  ansible.builtin.package:
+    name: "{{ unbound_dig_package_name }}"
+    state: present
+
+- name: verify | Retrieve A record from unbound server at 127.0.0.1
+  ansible.builtin.command: dig dns9.quad9.net A @127.0.0.1
+  changed_when: false
+  register: result
+
+- name: verify | Show A record values
+  ansible.builtin.debug:
+    msg: '{{ result.stdout_lines }}'
+  when:
+    - unbound_verify_debug
+    - "'SERVER: 127.0.0.1' not in result.stdout"
+
+- name: verify | Check result for record
+  ansible.builtin.assert:
+    that:
+      - "result.stdout is search('dns9.+9.9.9.9')"
+    fail_msg: "Assertion failed: output does not match 'dns9.+9.9.9.9'"
+
+- name: verify | Check result for server
+  ansible.builtin.assert:
+    that:
+      - "'SERVER: 127.0.0.1' in result.stdout"
+    fail_msg: "Assertion failed: output does not contain 'SERVER: 127.0.0.1'"
+
+- name: verify | Retrieve A record from default resolver
+  ansible.builtin.command: dig dns9.quad9.net A
+  changed_when: false
+  register: result
+
+- name: verify | Show A record values
+  ansible.builtin.debug:
+    msg: '{{ result.stdout_lines }}'
+  when:
+    - unbound_verify_debug
+    - "'SERVER: 127.0.0.1' not in result.stdout"
+
+- name: verify | Check result for record
+  ansible.builtin.assert:
+    that:
+      - "result.stdout is search('dns9.+9.9.9.9')"
+    fail_msg: "Assertion failed: output does not match 'dns9.+9.9.9.9'"
+
+- name: verify | Check result for server
+  ansible.builtin.assert:
+    that:
+      - "'SERVER: 127.0.0.1' in result.stdout"
+    fail_msg: "Assertion failed: output does not contain 'SERVER: 127.0.0.1'"

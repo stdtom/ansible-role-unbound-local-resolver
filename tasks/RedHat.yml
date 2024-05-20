@@ -1,0 +1,39 @@
+---
+# tasks file for RedHat
+
+- name: RedHat | Retrieve DNS servers
+  ansible.builtin.shell:
+    cmd: "set -o pipefail && nmcli -t -f IP4.DNS,IP6.DNS device show | sed 's/IP..DNS[^:]*://'"
+  register: dns_servers_output
+  changed_when: false
+
+- name: RedHat | Convert output to YAML list
+  ansible.builtin.set_fact:
+    dns_servers: "{{ (unbound_dns_servers + dns_servers_output.stdout_lines) }}"
+
+- name: RedHat | Display DNS servers
+  ansible.builtin.debug:
+    var: dns_servers
+
+- name: RedHat | Create /etc/resolv.conf.ansible
+  ansible.builtin.template:
+    src: "resolve.conf.j2"
+    dest: /etc/resolv.conf.ansible
+    mode: '0644'
+
+- name: RedHat | Disable NetworkManager DNS management
+  ansible.builtin.copy:
+    content: |
+      [main]
+      dns=none
+    dest: /etc/NetworkManager/conf.d/dns-none.conf
+    mode: '0644'
+  notify: Reload NetworkManager
+
+- name: RedHat | Create symlink for /etc/resolv.conf to /etc/resolv.conf.ansible
+  ansible.builtin.file:
+    src: /etc/resolv.conf.ansible
+    dest: /etc/resolv.conf
+    state: link
+    force: true
+  notify: Reload NetworkManager

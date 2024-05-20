@@ -1,0 +1,11 @@
+---
+# defaults file for unbound
+
+unbound_verify_debug: false
+
+unbound_dns_servers:
+  - 127.0.0.1
+
+unbound_fallback_dns_servers:
+  - 9.9.9.9
+  - 149.112.112.112

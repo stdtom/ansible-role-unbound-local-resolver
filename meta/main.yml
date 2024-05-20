@@ -1,0 +1,35 @@
+---
+galaxy_info:
+  author: stdtom
+  role_name: unbound
+  description: Install and configure unbound as local dns resolver on your system.
+  license: Apache-2.0
+  company: none
+  min_ansible_version: "2.12"
+
+  platforms:
+    #    - name: Amazon
+    #      versions:
+    #        - "2018.03"
+    - name: EL
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - installer
+    - dns
+    - package
+    - unbound
+    - networking
+    - system
+
+dependencies: []

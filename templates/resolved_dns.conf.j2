@@ -1,0 +1,6 @@
+{{ ansible_managed | comment }}
+
+[Resolve]
+DNS={{ unbound_dns_servers | join(' ') }}
+FallbackDNS={{ unbound_fallback_dns_servers | join(' ') }}
+DNSStubListener=no

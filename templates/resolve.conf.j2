@@ -1,0 +1,9 @@
+{{ ansible_managed | comment }}
+
+{% for server in dns_servers %}
+{% if loop.index == 4 %}
+# NOTE: the libc resolver may not support more than 3 nameservers.
+# The nameservers listed below may not be recognized.
+{% endif %}
+nameserver {{ server }}
+{% endfor %}

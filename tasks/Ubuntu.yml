@@ -1,0 +1,24 @@
+---
+# tasks file for Ubuntu
+
+- name: Ubuntu | Create directory /etc/systemd/resolved.conf.d/
+  ansible.builtin.file:
+    path: /etc/systemd/resolved.conf.d/
+    state: directory
+    mode: '0755'
+
+- name: Ubuntu | Create /etc/systemd/resolved.conf.d/dns.conf to disable systemd-resolved DNSStubListener
+  ansible.builtin.template:
+    src: "resolved_dns.conf.j2"
+    dest: /etc/systemd/resolved.conf.d/dns.conf
+    mode: '0644'
+  notify: Restart systemd-resolved
+
+- name: Ubuntu | Create symlink for /etc/resolv.conf to /run/systemd/resolve/resolv.conf
+  ansible.builtin.file:
+    src: /run/systemd/resolve/resolv.conf
+    dest: /etc/resolv.conf
+    state: link
+    force: true
+  when: ansible_distribution_version == '20.04'
+  notify: Restart systemd-resolved
